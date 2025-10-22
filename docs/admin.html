@@ -1,135 +1,414 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Transacciones - CreaMas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
   <style>
-    .table-img { 
-      max-width: 100px;  
-      max-height: 100px; 
-      object-fit: cover; 
-      cursor: pointer;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+    :root {
+      --card-radius: 16px;
     }
-    .table-wrapper { overflow-x: auto; }
+
+    /* Tabla responsive con scroll suave */
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Imágenes de comprobante */
+    .table-img,
+    .card-img {
+      max-width: 96px;
+      max-height: 96px;
+      object-fit: cover;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,.1);
+    }
+
+    /* Grid de tarjetas en móvil */
+    .tx-card {
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: var(--card-radius);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tx-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+    }
+
+    /* Sticky header para la tabla */
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    /* Soporte modo oscuro automático */
+    @media (prefers-color-scheme: dark) {
+      body { background: #0b0c10; color: #e6e6e6; }
+      .table { color: #dcdcdc; }
+      .table thead th { background-color: #12141a !important; }
+      .tx-card { border-color: rgba(255,255,255,.08); }
+      .table-img, .card-img { border-color: rgba(255,255,255,.12); }
+      .form-control, .form-select {
+        background-color: #0f1117; color: #e6e6e6; border-color: #2a2f3a;
+      }
+    }
+
+    /* Ocultar/mostrar vistas según tamaño */
+    /* Tarjetas en < md, Tabla en ≥ md */
+    .view-cards { display: block; }
+    .view-table { display: none; }
+    @media (min-width: 768px) {
+      .view-cards { display: none; }
+      .view-table { display: block; }
+    }
+
+    /* Pequeños detalles */
+    .muted-label { font-size: .8rem; color: #6c757d; }
+    .chip {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .25rem .6rem; border-radius: 999px; font-size: .8rem;
+      border: 1px solid rgba(0,0,0,.08);
+    }
   </style>
 </head>
 <body>
-<div class="container mt-4">
-  <h3>Listado de Transacciones</h3>
-  <div class="table-wrapper mt-3">
-    <table class="table table-striped table-bordered">
-      <thead class="table-dark">
-        <tr>
-          <th>ID</th>
-          <th>Usuario</th>
-          <th>Vitamina</th>
-          <th>Estado</th>
-          <th>Fecha Creación</th>
-          <th>Fecha Confirmación</th>
-          <th>Fecha Pago</th>
-          <th>Pago (Imagen)</th>
-          <th>Admin Validado</th>
-          <th>Notas</th>
-          <th>Monto</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody id="transactionBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- Modal para ver imagen en grande -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body text-center">
-        <img id="modalImage" src="" style="max-width: 100%; max-height: 80vh; border-radius: 8px;"/>
+  <div class="container py-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3">
+      <div>
+        <h3 class="mb-1">Listado de Transacciones</h3>
+        <div class="text-muted">Administra y valida pagos de forma rápida y clara.</div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      <div class="d-flex flex-wrap gap-2">
+        <input id="searchInput" type="search" class="form-control" placeholder="Buscar (usuario, vitamina, estado, notas)..." />
+        <select id="estadoFilter" class="form-select">
+          <option value="">Estado (todos)</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Confirmado">Confirmado</option>
+          <option value="Pagado">Pagado</option>
+          <option value="Rechazado">Rechazado</option>
+        </select>
+        <select id="validadoFilter" class="form-select">
+          <option value="">Validación (todas)</option>
+          <option value="true">Validadas</option>
+          <option value="false">No validadas</option>
+        </select>
+        <button id="refreshBtn" class="btn btn-outline-primary">
+          Recargar
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="d-flex align-items-center gap-2 mt-4">
+      <div class="spinner-border" role="status" aria-hidden="true"></div>
+      <strong>Cargando transacciones…</strong>
+    </div>
+
+    <!-- Tabla (desktop) -->
+    <div class="table-wrapper mt-3 view-table">
+      <table class="table table-hover table-bordered align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Vitamina</th>
+            <th>Estado</th>
+            <th>F. Creación</th>
+            <th>F. Confirmación</th>
+            <th>F. Pago</th>
+            <th>Pago (Imagen)</th>
+            <th>Admin Validado</th>
+            <th>Notas</th>
+            <th class="text-end">Monto</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="transactionBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Tarjetas (móvil) -->
+    <div id="cardsContainer" class="row row-cols-1 g-3 mt-1 view-cards"></div>
+  </div>
+
+  <!-- Modal de imagen -->
+  <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-body text-center p-2 p-md-3">
+          <img id="modalImage" src="" style="max-width: 100%; max-height: 80vh; border-radius: 12px;" alt="Comprobante de pago"/>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  const BASE_URL = 'https://esp32-uolp3a.fly.dev';
+  <!-- Toaster -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+    <div id="appToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Acción realizada.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
 
-  function loadTransactions() {
-    $.ajax({
-      url: `${BASE_URL}/api/chat/transactions`,
-      method: 'GET',
-      dataType: 'json',
-      success: function(transactions) {
-        const $tbody = $('#transactionBody');
-        $tbody.empty();
-        transactions.forEach(tx => {
-          const imgHtml = tx.paymentImage ? `<img src="${tx.paymentImage}" class="table-img"/>` : '';
-          const adminVal = tx.adminValidado === true ? 'Sí' : 'No';
-          const row = `
-            <tr>
-              <td>${tx.id}</td>
-              <td>${tx.userId || ''}</td>
-              <td>${tx.vitamina}</td>
-              <td>${tx.estado}</td>
-              <td>${tx.fechaCreacion || ''}</td>
-              <td>${tx.fechaConfirmacion || ''}</td>
-              <td>${tx.fechaPago || ''}</td>
-              <td>${imgHtml}</td>
-              <td>${adminVal}</td>
-              <td>${tx.notas || ''}</td>
-              <td>${tx.monto || ''}</td>
-              <td>
-                <button class="btn btn-success btn-sm validate-btn" data-id="${tx.id}" ${tx.adminValidado ? 'disabled' : ''}>
-                  Validar pago
-                </button>
-              </td>
-            </tr>
-          `;
-          $tbody.append(row);
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const BASE_URL = 'https://esp32-wamjqa.fly.dev';
+    const $tbody = $('#transactionBody');
+    const $cards = $('#cardsContainer');
+    const $loading = $('#loading');
+    const toast = new bootstrap.Toast(document.getElementById('appToast'));
+    const nf = new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN', maximumFractionDigits: 2 });
+
+    let allTransactions = [];
+
+    const estadoBadge = (estado) => {
+      const map = {
+        'Pendiente': 'warning',
+        'Confirmado': 'info',
+        'Pagado': 'success',
+        'Rechazado': 'danger'
+      };
+      const variant = map[estado] || 'secondary';
+      return `<span class="badge text-bg-${variant}">${estado || '—'}</span>`;
+    };
+
+    const boolBadge = (val) => {
+      return val
+        ? '<span class="badge text-bg-success">Sí</span>'
+        : '<span class="badge text-bg-secondary">No</span>';
+    };
+
+    const fmtDate = (val) => {
+      if (!val) return '';
+      try {
+        const d = new Date(val);
+        if (isNaN(d)) return val;
+        return d.toLocaleString('es-PE', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit'
         });
-      },
-      error: function(err) {
-        console.error("Error cargando transacciones:", err);
+      } catch { return val; }
+    };
+
+    const fmtMoney = (v) => (v || v === 0) ? nf.format(Number(v)) : '';
+
+    function showToast(msg, isError = false) {
+      const toastEl = document.getElementById('appToast');
+      toastEl.classList.remove('text-bg-primary', 'text-bg-danger', 'text-bg-success');
+      toastEl.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
+      $('#toastMsg').text(msg);
+      toast.show();
+    }
+
+    async function loadTransactions() {
+      $loading.show();
+      try {
+        const res = await $.ajax({
+          url: `${BASE_URL}/api/chat/transactions`,
+          method: 'GET',
+          dataType: 'json'
+        });
+        allTransactions = Array.isArray(res) ? res : [];
+        render();
+      } catch (err) {
+        console.error('Error cargando transacciones:', err);
+        showToast('No se pudieron cargar las transacciones.', true);
+      } finally {
+        $loading.hide();
+      }
+    }
+
+    function applyFilters(data) {
+      const q = $('#searchInput').val()?.toLowerCase().trim() || '';
+      const fEstado = $('#estadoFilter').val();
+      const fValidado = $('#validadoFilter').val();
+
+      return data.filter(tx => {
+        // Texto libre
+        const text = [
+          tx.userId, tx.vitamina, tx.estado, tx.notas, tx.id, tx.monto
+        ].map(v => (v ?? '') + '').join(' ').toLowerCase();
+
+        if (q && !text.includes(q)) return false;
+
+        // Filtro estado
+        if (fEstado && (tx.estado !== fEstado)) return false;
+
+        // Filtro validado
+        if (fValidado !== '') {
+          const bool = String(!!tx.adminValidado);
+          if (bool !== fValidado) return false;
+        }
+        return true;
+      });
+    }
+
+    function render() {
+      const data = applyFilters(allTransactions);
+      renderTable(data);
+      renderCards(data);
+    }
+
+    function renderTable(transactions) {
+      $tbody.empty();
+      if (!transactions.length) {
+        $tbody.append(`<tr><td colspan="12" class="text-center text-muted py-4">Sin resultados</td></tr>`);
+        return;
+      }
+
+      transactions.forEach(tx => {
+        const imgHtml = tx.paymentImage
+          ? `<img src="${tx.paymentImage}" class="table-img" alt="Comprobante" loading="lazy" />`
+          : '<span class="text-muted">—</span>';
+
+        const row = `
+          <tr>
+            <td>${tx.id ?? ''}</td>
+            <td>${tx.userId ?? ''}</td>
+            <td>${tx.vitamina ?? ''}</td>
+            <td>${estadoBadge(tx.estado)}</td>
+            <td>${fmtDate(tx.fechaCreacion)}</td>
+            <td>${fmtDate(tx.fechaConfirmacion)}</td>
+            <td>${fmtDate(tx.fechaPago)}</td>
+            <td>${imgHtml}</td>
+            <td>${boolBadge(!!tx.adminValidado)}</td>
+            <td>${tx.notas ?? ''}</td>
+            <td class="text-end">${fmtMoney(tx.monto)}</td>
+            <td>
+              <button
+                class="btn btn-success btn-sm validate-btn"
+                data-id="${tx.id}"
+                ${tx.adminValidado ? 'disabled' : ''}>
+                Validar pago
+              </button>
+            </td>
+          </tr>`;
+        $tbody.append(row);
+      });
+    }
+
+    function renderCards(transactions) {
+      $cards.empty();
+      if (!transactions.length) {
+        $cards.append(`<div class="text-center text-muted py-4">Sin resultados</div>`);
+        return;
+      }
+
+      transactions.forEach(tx => {
+        const image = tx.paymentImage
+          ? `<img src="${tx.paymentImage}" class="card-img" alt="Comprobante" loading="lazy" />`
+          : '';
+
+        const adminVal = !!tx.adminValidado;
+
+        const card = document.createElement('div');
+        card.className = 'col';
+        card.innerHTML = `
+          <div class="p-3 tx-card h-100">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <div class="muted-label">ID</div>
+                <div class="fw-semibold">${tx.id ?? ''}</div>
+              </div>
+              <div>${estadoBadge(tx.estado)}</div>
+            </div>
+
+            <div class="mt-3 d-flex gap-3 align-items-center">
+              ${image}
+              <div class="flex-grow-1">
+                <div class="d-flex flex-wrap gap-2">
+                  <span class="chip"><strong class="me-1">Usuario:</strong> ${tx.userId ?? '—'}</span>
+                  <span class="chip"><strong class="me-1">Vitamina:</strong> ${tx.vitamina ?? '—'}</span>
+                  <span class="chip"><strong class="me-1">Validado:</strong> ${adminVal ? 'Sí' : 'No'}</span>
+                </div>
+                <div class="mt-2 small text-muted">
+                  <div>Creación: ${fmtDate(tx.fechaCreacion) || '—'}</div>
+                  <div>Confirmación: ${fmtDate(tx.fechaConfirmacion) || '—'}</div>
+                  <div>Pago: ${fmtDate(tx.fechaPago) || '—'}</div>
+                </div>
+                <div class="mt-2">
+                  <span class="fw-semibold">Monto:</span> ${fmtMoney(tx.monto) || '—'}
+                </div>
+                ${tx.notas ? `<div class="mt-2"><span class="fw-semibold">Notas:</span> ${tx.notas}</div>` : ''}
+              </div>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+              <button
+                class="btn btn-success btn-sm validate-btn"
+                data-id="${tx.id}"
+                ${adminVal ? 'disabled' : ''}>
+                Validar pago
+              </button>
+              ${tx.paymentImage ? `<button class="btn btn-outline-secondary btn-sm view-img-btn" data-src="${tx.paymentImage}">Ver imagen</button>` : ''}
+            </div>
+          </div>
+        `;
+        $cards.append(card);
+      });
+    }
+
+    // Validar pago
+    $(document).on('click', '.validate-btn', async function () {
+      const txId = $(this).data('id');
+      try {
+        await $.ajax({
+          url: `${BASE_URL}/api/chat/transactions/${txId}/validate`,
+          method: 'PUT'
+        });
+        showToast(`Transacción ${txId} validada correctamente.`);
+        await loadTransactions();
+      } catch (err) {
+        console.error('Error validando transacción:', err);
+        showToast('No se pudo validar la transacción.', true);
       }
     });
-  }
 
-  // Validar pago
-  $(document).on('click', '.validate-btn', function() {
-    const txId = $(this).data('id');
-    $.ajax({
-      url: `${BASE_URL}/api/chat/transactions/${txId}/validate`,
-      method: 'PUT',
-      success: function() {
-        alert(`Transacción ${txId} validada correctamente.`);
-        loadTransactions(); // recargar tabla
-      },
-      error: function(err) {
-        console.error("Error validando transacción:", err);
-        alert("No se pudo validar la transacción.");
-      }
+    // Mostrar imagen en modal (tabla)
+    $(document).on('click', '.table-img', function () {
+      const src = $(this).attr('src');
+      $('#modalImage').attr('src', src);
+      const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+      modal.show();
     });
-  });
 
-  // Mostrar imagen en modal
-  $(document).on('click', '.table-img', function() {
-    const src = $(this).attr('src');
-    $('#modalImage').attr('src', src);
-    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
-    modal.show();
-  });
+    // Mostrar imagen en modal (tarjetas)
+    $(document).on('click', '.view-img-btn', function () {
+      const src = $(this).data('src');
+      $('#modalImage').attr('src', src);
+      const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+      modal.show();
+    });
 
-  $(document).ready(function() {
-    loadTransactions();
-  });
-</script>
+    // Filtros/búsqueda con debounce
+    let debounceTimer = null;
+    $('#searchInput, #estadoFilter, #validadoFilter').on('input change', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(render, 200);
+    });
+
+    // Botón refrescar
+    $('#refreshBtn').on('click', loadTransactions);
+
+    // Init
+    $(document).ready(loadTransactions);
+  </script>
 </body>
 </html>

@@ -1,36 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat IA - CreaMas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat IA - Vitaclick</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
   <style>
-    .chat-wrapper { max-width: 860px; margin: 32px auto; }
-    .chat-box { height: 460px; overflow-y: auto; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; }
-    .msg { max-width: 80%; margin-bottom: 10px; padding: 10px 14px; border-radius: 14px; word-wrap: break-word; }
-    .msg-user { margin-left: auto; color: #fff; background: #0d6efd; border-radius: 14px 14px 0 14px; }
-    .msg-bot { margin-right: auto; background: #fff; border: 1px solid #e9ecef; border-radius: 14px 14px 14px 0; }
+    :root {
+      --bubble-user: #0d6efd;
+      --bubble-bot: #ffffff;
+      --bubble-border: #e9ecef;
+      --radius: 16px;
+      --bg: #f8f9fa;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bubble-user: #3a7bfd;
+        --bubble-bot: #0f1117;
+        --bubble-border: #2a2f3a;
+        --bg: #0b0c10;
+      }
+      body { color: #e6e6e6; }
+      .form-control, .form-select { background:#0f1117; color:#e6e6e6; border-color:#2a2f3a; }
+      .btn-outline-secondary { color:#e6e6e6; border-color:#3a3f4a; }
+    }
+
+    body { background: var(--bg); }
+    .chat-wrapper { max-width: 980px; margin: 32px auto; padding: 0 12px; }
+
+    .chat-box {
+      height: 520px; overflow-y: auto; background: var(--bg);
+      border: 1px solid var(--bubble-border); border-radius: 12px; padding: 16px;
+      scroll-behavior: smooth;
+    }
+    .msg-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .msg-row.user { justify-content: flex-end; }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%; flex: 0 0 36px;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+      background: #e9f2ff; color: #0d6efd; border: 1px solid var(--bubble-border);
+    }
+    .msg {
+      max-width: min(78%, 680px);
+      padding: 10px 14px; border-radius: var(--radius);
+      word-wrap: break-word; white-space: pre-wrap;
+      border: 1px solid var(--bubble-border); line-height: 1.35;
+    }
+    .msg.user {
+      color: #fff; background: var(--bubble-user); border-color: transparent;
+      border-top-right-radius: 4px;
+    }
+    .msg.bot {
+      background: var(--bubble-bot);
+      border-top-left-radius: 4px;
+    }
+    .msg img { max-width: 220px; border-radius: 10px; display: block; }
+    .timestamp { font-size: .78rem; opacity: .6; margin-top: 2px; }
+
     .input-row { gap: 8px; }
-    .file-row { gap: 8px; margin-top: 10px; }
-    .vitamin-row { gap: 8px; margin-top: 10px; }
-    .typing { display: none; color: #6c757d; font-style: italic; padding: 6px 0; }
+    .file-row, .vitamin-row { gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+    .typing {
+      display: none; color: #6c757d; font-style: italic; padding: 6px 0; min-height: 28px;
+    }
+    .typing-dots { display:inline-flex; gap:4px; margin-left: 6px; }
+    .typing-dots span {
+      width: 6px; height: 6px; border-radius: 50%; background: #6c757d;
+      display:inline-block; animation: blink 1s infinite;
+    }
+    .typing-dots span:nth-child(2){ animation-delay: .15s }
+    .typing-dots span:nth-child(3){ animation-delay: .3s }
+    @keyframes blink { 0%,80%,100% {opacity:.2} 40% {opacity:1} }
+
+    .drop-zone {
+      border: 1px dashed var(--bubble-border); border-radius: 12px;
+      padding: 10px; text-align: center; transition: background .15s ease, border-color .15s ease;
+    }
+    .drop-zone.dragover { background: rgba(13,110,253,.06); border-color:#0d6efd; }
+
+    .toolbar { gap: 8px; flex-wrap: wrap; }
+
+    @media (max-width: 576px) {
+      .msg { max-width: 92%; }
+      .chat-box { height: 70vh; }
+    }
   </style>
 </head>
 <body>
   <div class="chat-wrapper">
-    <h3 class="mb-2">Asistente CreaMas</h3>
-    <p class="text-muted mb-3">Escribe tu mensaje, elige tu vitamina y sube el comprobante.</p>
+    <header class="d-flex align-items-end justify-content-between mb-2 toolbar">
+      <div>
+        <h3 class="mb-1">Asistente Vitaclick</h3>
+        <p class="text-muted mb-0">Escribe tu mensaje, elige tu vitamina y sube tu comprobante.</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button id="clearBtn" type="button" class="btn btn-outline-secondary btn-sm">Limpiar historial</button>
+        <button id="refreshBtn" type="button" class="btn btn-outline-primary btn-sm">Recargar</button>
+      </div>
+    </header>
 
-    <div id="chatBox" class="chat-box"></div>
-    <div id="typing" class="typing">El asistente está escribiendo...</div>
+    <div id="chatBox" class="chat-box drop-zone" aria-live="polite"></div>
+    <div id="typing" class="typing">
+      El asistente está escribiendo
+      <span class="typing-dots"><span></span><span></span><span></span></span>
+    </div>
 
-    <!-- Chat de texto -->
+    <!-- Entrada de texto -->
     <form id="chatForm" class="mt-3" autocomplete="off">
       <div class="d-flex input-row">
-        <input id="messageInput" type="text" class="form-control" placeholder="Escribe tu mensaje...">
-        <button id="sendBtn" type="submit" class="btn btn-primary">Enviar</button>
-        <button id="clearBtn" type="button" class="btn btn-outline-secondary">Limpiar historial</button>
+        <textarea id="messageInput" class="form-control" rows="1" placeholder="Escribe tu mensaje... (Enter para enviar, Shift+Enter para nueva línea)"></textarea>
+        <button id="sendBtn" type="submit" class="btn btn-primary">
+          <span class="send-label">Enviar</span>
+          <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+        </button>
       </div>
     </form>
 
@@ -47,133 +130,267 @@
       <input id="fileInput" type="file" accept="image/*" class="form-control">
       <button id="uploadBtn" type="button" class="btn btn-success">Subir comprobante</button>
     </div>
+    <small class="text-muted">También puedes arrastrar y soltar una imagen en el área del chat.</small>
+  </div>
+
+  <!-- Toasts -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+    <div id="appToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Hecho.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    $(function() {
-      const BASE_URL = 'https://esp32-uolp3a.fly.dev';
+    (function(){
+      const BASE_URL = 'https://esp32-wamjqa.fly.dev';
       const $chat = $('#chatBox');
       const $form = $('#chatForm');
       const $input = $('#messageInput');
       const $typing = $('#typing');
+      const $sendBtn = $('#sendBtn');
+      const toast = new bootstrap.Toast(document.getElementById('appToast'));
 
-      function scrollToBottom() { $chat.scrollTop($chat[0].scrollHeight); }
-      function addMsg(role, text) {
-        const cls = role === 'user' ? 'msg msg-user' : 'msg msg-bot';
-        const safe = (text || '').toString().replace(/\n/g, '<br>');
-        $chat.append(`<div class="${cls}">${safe}</div>`);
+      const nowStr = () => new Date().toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit'});
+      const showToast = (msg, isError=false) => {
+        const el = document.getElementById('appToast');
+        el.classList.remove('text-bg-success','text-bg-danger','text-bg-primary');
+        el.classList.add(isError ? 'text-bg-danger' : 'text-bg-success');
+        document.getElementById('toastMsg').textContent = msg;
+        toast.show();
+      };
+
+      function scrollToBottom(){ $chat.scrollTop($chat[0].scrollHeight); }
+
+      function escapeHTML(str){
+        return (str ?? '').toString()
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;');
+      }
+
+      function renderBubble(role, content, {isHTML=false, isImage=false} = {}){
+        const isUser = role === 'user';
+        const rowClass = isUser ? 'msg-row user' : 'msg-row';
+        const msgClass = isUser ? 'msg user' : 'msg bot';
+        const avatar = isUser ? '<div class="avatar">Tú</div>' : '<div class="avatar">AI</div>';
+
+        let body = '';
+        if(isImage){
+          body = `<img src="${content}" alt="imagen" />`;
+        } else if (isHTML){
+          body = content;
+        } else {
+          body = escapeHTML(content).replace(/\n/g,'<br>');
+        }
+
+        const html = `
+          <div class="${rowClass}">
+            ${isUser ? '' : avatar}
+            <div>
+              <div class="${msgClass}">${body}</div>
+              <div class="timestamp ${isUser ? 'text-end' : ''}">${nowStr()}</div>
+            </div>
+            ${isUser ? avatar : ''}
+          </div>
+        `;
+        $chat.append(html);
         scrollToBottom();
       }
 
-      // Cargar historial
-      $.ajax({
-        url: `${BASE_URL}/api/chat/history`,
-        method: 'GET',
-        dataType: 'json',
-        success: function(list) {
-          if (Array.isArray(list) && list.length > 0) {
-            list.forEach(m => addMsg(m.role, m.content));
+      function setSendingState(sending){
+        $sendBtn.prop('disabled', sending);
+        $sendBtn.find('.send-label').toggleClass('d-none', sending);
+        $sendBtn.find('.spinner-border').toggleClass('d-none', !sending);
+      }
+
+      async function fetchJSON(url, opts){
+        return new Promise((resolve, reject) => {
+          $.ajax({
+            url, ...opts,
+            dataType: 'json',
+            success: resolve,
+            error: (xhr) => reject(xhr)
+          });
+        });
+      }
+
+      // ============== Historial ==============
+      async function loadHistory(){
+        try{
+          const list = await fetchJSON(`${BASE_URL}/api/chat/history`, { method:'GET' });
+          if(Array.isArray(list) && list.length){
+            list.forEach(m => {
+              const isImg = typeof m.content === 'string' && m.content.startsWith('data:image');
+              renderBubble(m.role || 'assistant', m.content || '', { isImage:isImg, isHTML:!isImg });
+            });
           } else {
-            addMsg('assistant', 'Hola, soy tu asistente de CreaMas. ¿En qué puedo ayudarte hoy?');
+            renderBubble('assistant', 'Hola, soy tu asistente de Vitaclick. ¿En qué puedo ayudarte hoy?');
           }
-        },
-        error: function() {
-          addMsg('assistant', 'Hola, soy tu asistente de CreaMas. ¿En qué puedo ayudarte hoy?');
+        } catch {
+          renderBubble('assistant', 'Hola, soy tu asistente de Vitaclick. ¿En qué puedo ayudarte hoy?');
+        }
+      }
+
+      // ============== Envío de texto ==============
+      $input.on('keydown', function(e){
+        if(e.key === 'Enter' && !e.shiftKey){
+          e.preventDefault();
+          $form.trigger('submit');
         }
       });
 
-      // Enviar mensaje de texto
-      $form.on('submit', function(e) {
+      $form.on('submit', async function(e){
         e.preventDefault();
         const message = ($input.val() || '').trim();
-        if (!message) return;
+        if(!message) return;
 
-        addMsg('user', message);
+        renderBubble('user', message);
         $input.val('');
         $typing.show();
+        setSendingState(true);
 
-        $.ajax({
-          url: `${BASE_URL}/api/chat/send`,
-          method: 'POST',
-          contentType: 'application/json',
-          dataType: 'json',
-          data: JSON.stringify({ content: message }),
-          success: function(resp) {
-            $typing.hide();
-            addMsg(resp.role || 'assistant', resp.content || 'Sin contenido.');
-          },
-          error: function() {
-            $typing.hide();
-            addMsg('assistant', 'Error al procesar tu mensaje.');
-          }
-        });
-      });
-
-      // Limpiar historial
-      $('#clearBtn').on('click', function() {
-        $.ajax({
-          url: `${BASE_URL}/api/chat/history`,
-          method: 'DELETE',
-          complete: function() {
-            $chat.empty();
-            addMsg('assistant', 'Historial borrado. ¿En qué puedo ayudarte ahora?');
-          }
-        });
-      });
-
-      // Botones de vitaminas
-      $('.vitaminBtn').on('click', function() {
-        const vit = $(this).data('vit');
-        addMsg('user', `${vit}`);
-        $typing.show();
-
-        $.ajax({
-          url: `${BASE_URL}/api/chat/send`,
-          method: 'POST',
-          contentType: 'application/json',
-          dataType: 'json',
-          data: JSON.stringify({ content: vit }),
-          success: function(resp) {
-            $typing.hide();
-            addMsg(resp.role || 'assistant', resp.content || 'Sin contenido.');
-          },
-          error: function() {
-            $typing.hide();
-            addMsg('assistant', 'Error al enviar la vitamina.');
-          }
-        });
-      });
-
-      // Subir comprobante (imagen)
-      $('#uploadBtn').on('click', function() {
-        const file = $('#fileInput')[0].files[0];
-        if (!file) return alert("Selecciona una imagen primero.");
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const base64 = e.target.result;
-          addMsg('user', `<img src="${base64}" style="max-width:150px; border-radius:8px;">`);
-
-          $.ajax({
-            url: `${BASE_URL}/api/chat/send`,
-            method: 'POST',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: JSON.stringify({ content: base64 }),
-            success: function(resp) {
-              addMsg(resp.role, resp.content);
-              $('#fileInput').val('');
-            },
-            error: function() {
-              addMsg('assistant', 'Error al subir la imagen.');
-            }
+        try{
+          const resp = await fetchJSON(`${BASE_URL}/api/chat/send`, {
+            method:'POST',
+            contentType:'application/json',
+            data: JSON.stringify({ content: message })
           });
-        };
-        reader.readAsDataURL(file);
+          $typing.hide();
+          setSendingState(false);
+
+          const role = resp.role || 'assistant';
+          const content = resp.content || 'Sin contenido.';
+          const isImg = typeof content === 'string' && content.startsWith('data:image');
+          renderBubble(role, content, { isHTML:!isImg, isImage:isImg });
+        } catch(err){
+          $typing.hide();
+          setSendingState(false);
+          showToast('Error al procesar tu mensaje.', true);
+          renderBubble('assistant', 'Ocurrió un error al procesar tu mensaje.');
+        }
       });
 
-    });
+      // ============== Limpiar historial ==============
+      $('#clearBtn').on('click', async function(){
+        if(!confirm('¿Seguro que deseas borrar el historial?')) return;
+        try{
+          await fetchJSON(`${BASE_URL}/api/chat/history`, { method:'DELETE' });
+        } catch {}
+        $chat.empty();
+        renderBubble('assistant', 'Historial borrado. ¿En qué puedo ayudarte ahora?');
+      });
+
+      // ============== Recargar ==============
+      $('#refreshBtn').on('click', async function(){
+        $chat.empty();
+        await loadHistory();
+        showToast('Historial recargado.');
+      });
+
+      // ============== Vitaminas ==============
+      $('.vitaminBtn').on('click', async function(){
+        const vit = $(this).data('vit');
+        renderBubble('user', vit);
+        $typing.show();
+        try{
+          const resp = await fetchJSON(`${BASE_URL}/api/chat/send`, {
+            method:'POST', contentType:'application/json',
+            data: JSON.stringify({ content: vit })
+          });
+          $typing.hide();
+          const isImg = typeof resp.content === 'string' && resp.content.startsWith('data:image');
+          renderBubble(resp.role || 'assistant', resp.content || 'Sin contenido.', { isHTML:!isImg, isImage:isImg });
+        } catch {
+          $typing.hide();
+          showToast('Error al enviar la vitamina.', true);
+          renderBubble('assistant', 'No se pudo enviar la vitamina.');
+        }
+      });
+
+      // ============== Imagen: compresión + envío ==============
+      function readAsDataURL(file){
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      async function compressImage(file, maxW = 1200, quality = 0.82){
+        const dataUrl = await readAsDataURL(file);
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            const ratio = img.width > maxW ? maxW / img.width : 1;
+            const w = Math.round(img.width * ratio);
+            const h = Math.round(img.height * ratio);
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const out = canvas.toDataURL('image/jpeg', quality);
+            resolve(out);
+          };
+          img.src = dataUrl;
+        });
+      }
+
+      async function sendImageBase64(base64){
+        renderBubble('user', `<img src="${base64}" alt="comprobante">`, { isHTML:true });
+        try{
+          const resp = await fetchJSON(`${BASE_URL}/api/chat/send`, {
+            method:'POST', contentType:'application/json',
+            data: JSON.stringify({ content: base64 })
+          });
+          const isImg = typeof resp.content === 'string' && resp.content.startsWith('data:image');
+          renderBubble(resp.role || 'assistant', resp.content || 'Sin contenido.', { isHTML:!isImg, isImage:isImg });
+          showToast('Comprobante enviado.');
+        } catch {
+          showToast('Error al subir la imagen.', true);
+          renderBubble('assistant', 'No se pudo subir la imagen.');
+        }
+      }
+
+      function validateImage(file){
+        if(!file) { showToast('Selecciona una imagen.', true); return false; }
+        if(!file.type.startsWith('image/')) { showToast('El archivo debe ser una imagen.', true); return false; }
+        const maxMB = 8;
+        if(file.size > maxMB * 1024 * 1024) {
+          showToast(`Imagen muy pesada (> ${maxMB}MB). Se intentará comprimir.`, true);
+        }
+        return true;
+      }
+
+      $('#uploadBtn').on('click', async function(){
+        const file = $('#fileInput')[0].files[0];
+        if(!validateImage(file)) return;
+        const base64 = await compressImage(file);
+        await sendImageBase64(base64);
+        $('#fileInput').val('');
+      });
+
+      // Arrastrar y soltar sobre el chat
+      $chat.on('dragover', function(e){ e.preventDefault(); e.originalEvent.dataTransfer.dropEffect='copy'; $chat.addClass('dragover'); });
+      $chat.on('dragleave', function(){ $chat.removeClass('dragover'); });
+      $chat.on('drop', async function(e){
+        e.preventDefault(); $chat.removeClass('dragover');
+        const files = e.originalEvent.dataTransfer.files;
+        if(!files || !files.length) return;
+        const file = files[0];
+        if(!validateImage(file)) return;
+        const base64 = await compressImage(file);
+        await sendImageBase64(base64);
+      });
+
+      // ============== Init ==============
+      loadHistory();
+    })();
   </script>
 </body>
 </html>
