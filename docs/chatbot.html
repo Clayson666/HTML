@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitaclick - Smart Wellness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 24px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .bg-teal {
+            background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
+        }
+
+        .bg-purple {
+            background: linear-gradient(135deg, #fae8ff 0%, #fbcfe8 100%);
+        }
+
+        .bg-green {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card-center {
+            text-align: center;
+        }
+
+        .icon-circle {
+            width: 96px;
+            height: 96px;
+            background: linear-gradient(135deg, #2dd4bf 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(45, 212, 191, 0.3);
+        }
+
+        .icon-circle.small {
+            width: 64px;
+            height: 64px;
+        }
+
+        .icon-circle.purple {
+            background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+        }
+
+        .icon-circle.green {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+
+        .icon-circle svg {
+            width: 48px;
+            height: 48px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .icon-circle.small svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 32px;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+
+        .btn-purple:hover {
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-gray {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        textarea {
+            width: 100%;
+            height: 192px;
+            padding: 16px;
+            padding-right: 64px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            margin-bottom: 24px;
+        }
+
+        textarea:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        textarea:disabled {
+            background: #f9fafb;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .input-purple:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+
+        .input-green:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group>div {
+            position: relative;
+        }
+
+        .form-group .mic-button {
+            bottom: 8px;
+            right: 8px;
+            width: 48px;
+            height: 48px;
+        }
+
+        .textarea-container {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .mic-button {
+            position: absolute;
+            bottom: 40px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-button:disabled {
+            background: #ef4444;
+            cursor: not-allowed;
+            animation: pulse 1s infinite;
+        }
+
+        .mic-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .alert-red {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+        }
+
+        .alert-teal {
+            background: #f0fdfa;
+            border-left: 4px solid #14b8a6;
+        }
+
+        .alert-blue {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert-purple {
+            background: #faf5ff;
+            border-left: 4px solid #a855f7;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .alert-text {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .recording-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .recording-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .recording-dot {
+            width: 16px;
+            height: 16px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: ping 1s infinite;
+        }
+
+        @keyframes ping {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .recording-text {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .vitamin-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .vitamin-card {
+            padding: 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .vitamin-card:hover {
+            transform: scale(1.05);
+            border-color: #14b8a6;
+        }
+
+        .vitamin-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .vitamin-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .payment-option:hover {
+            border-color: #14b8a6;
+            background: #f0fdfa;
+            transform: scale(1.05);
+        }
+
+        .payment-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .payment-icon.purple {
+            background: #f3e8ff;
+        }
+
+        .payment-icon.green {
+            background: #d1fae5;
+        }
+
+        .payment-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .payment-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .payment-arrow {
+            color: #9ca3af;
+            font-size: 24px;
+        }
+
+        .selected-vitamin {
+            display: inline-block;
+            background: #ccfbf1;
+            padding: 12px 24px;
+            border-radius: 999px;
+            margin-bottom: 32px;
+        }
+
+        .selected-vitamin-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .selected-vitamin-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #14b8a6;
+        }
+
+        .qr-box {
+            padding: 32px;
+            background: white;
+            border: 4px solid #e9d5ff;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .qr-placeholder {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-placeholder svg {
+            width: 128px;
+            height: 128px;
+            stroke: #a855f7;
+        }
+
+        .method-badge {
+            background: #faf5ff;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .method-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .method-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #a855f7;
+        }
+
+        .cash-icon {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 16px;
+        }
+
+        .cash-icon svg {
+            width: 96px;
+            height: 96px;
+            stroke: #10b981;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .success-icon {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .dispensing-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #ccfbf1 100%);
+            border: 2px solid #5eead4;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .dispensing-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .dispensing-header svg {
+            width: 20px;
+            height: 20px;
+            stroke: #14b8a6;
+            margin-right: 8px;
+        }
+
+        .dispensing-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .dispensing-text {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+  <!-- Pantalla 1: Bienvenida -->
+  <div id="welcome" class="screen active bg-teal">
+    <div class="card card-center">
+      <h1>¡HOLA!</h1>
+      <div class="brand">Vitaclick</div>
+      <p class="subtitle">Smart Wellness</p>
+      <button class="btn" onclick="showScreen('question')">COMENZAR</button>
+    </div>
+  </div>
+
+  <!-- Pantalla 2: Síntomas -->
+<div id="question" class="screen bg-teal">
+  <div class="card">
+    <h2>¿Qué síntomas presentas?</h2>
+
+    <div class="textarea-container">
+      <textarea id="symptoms" placeholder="Escribe aquí o usa el micrófono..."></textarea>
+      <button id="micButton" class="mic-button" onclick="handleMic()">🎤</button>
+    </div>
+
+    <div class="alert alert-blue">
+      <p><strong>🎤 Instrucciones:</strong><br>
+        1. Presiona el micrófono<br>
+        2. Permite el acceso<br>
+        3. Habla claramente<br>
+        4. El texto aparecerá automáticamente
+      </p>
+    </div>
+
+    <!-- Respuesta del chatbot -->
+    <div id="chatResponse" style="margin-top:20px; display:none;">
+      <h3 style="font-size:18px; color:#065f46;">Asistente:</h3>
+      <div id="chatText" style="background:#ecfdf5; border-radius:12px; padding:12px; color:#064e3b;"></div>
+    </div>
+
+    <button class="btn mt-3" onclick="goToDiagnosis()">CONTINUAR</button>
+  </div>
+</div>
+
+<!-- Pantalla 3: Diagnóstico -->
+<div id="diagnosis" class="screen bg-teal">
+  <div class="card">
+    <div class="alert alert-teal">
+      <p class="alert-title">Recomendación:</p>
+      <p id="diagnosisText" class="alert-text">Esperando respuesta de la IA...</p>
+    </div>
+
+    <h2>Elige alguna vitamina</h2>
+    <div class="vitamin-grid">
+      <div class="vitamin-card" onclick="selectVitamin('hierro', 'Hierro')">
+        <div class="vitamin-icon" style="background:#dc2626;">⚡</div>
+        <div class="vitamin-name">Hierro</div>
+      </div>
+      <div class="vitamin-card" onclick="selectVitamin('b12', 'B12')">
+        <div class="vitamin-icon" style="background:#2563eb;">💊</div>
+        <div class="vitamin-name">B12</div>
+      </div>
+      <div class="vitamin-card" onclick="selectVitamin('zinc', 'Zinc')">
+        <div class="vitamin-icon" style="background:#9333ea;">✨</div>
+        <div class="vitamin-name">Zinc</div>
+      </div>
+      <div class="vitamin-card" onclick="selectVitamin('vitaminac', 'Vitamina C')">
+        <div class="vitamin-icon" style="background:#ea580c;">🍊</div>
+        <div class="vitamin-name">Vitamina C</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = 'https://esp32-wamjqa.fly.dev';
+  let aiRecommendation = '';
+
+  // Enviar texto o voz al backend
+  async function sendSymptomsToChat() {
+    const text = document.getElementById('symptoms').value.trim();
+    const responseBox = document.getElementById('chatResponse');
+    const responseText = document.getElementById('chatText');
+    const diagnosisText = document.getElementById('diagnosisText');
+
+    if (!text) {
+      alert('Por favor, escribe o dicta tus síntomas antes de continuar.');
+      return;
+    }
+
+    // Mostrar loader
+    responseBox.style.display = 'block';
+    responseText.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px; color:#065f46;">
+        <div class="spinner" style="
+          width:18px; height:18px; border:3px solid #14b8a6; 
+          border-top-color:transparent; border-radius:50%; 
+          animation: spin 1s linear infinite;"></div>
+        <span>Analizando tus síntomas...</span>
+      </div>
+    `;
+    diagnosisText.innerHTML = '<em>⌛ Esperando respuesta del asistente...</em>';
+
+    const start = performance.now();
+    console.log('🚀 Enviando solicitud al endpoint:', `${BASE_URL}/api/chat/send`);
+    console.log('📤 Contenido enviado:', text);
+
+    try {
+      const resp = await fetch(`${BASE_URL}/api/chat/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text })
+      });
+
+      const end = performance.now();
+      const duration = ((end - start) / 1000).toFixed(2);
+      console.log(`✅ Respuesta recibida (${duration}s):`, resp);
+
+      const data = await resp.json();
+      console.log('📦 JSON recibido:', data);
+
+      aiRecommendation = data?.content?.trim() || '';
+
+      if (aiRecommendation) {
+        console.log('💬 Recomendación IA:', aiRecommendation);
+        responseText.innerHTML = aiRecommendation.replace(/\n/g, '<br>');
+        diagnosisText.innerHTML = aiRecommendation
+          .replace(/\*\*/g, '<strong>')
+          .replace(/\n/g, '<br>');
+      } else {
+        console.warn('⚠️ No se recibió contenido válido.');
+        responseText.innerHTML =
+          '<span style="color:red;">⚠️ No se recibió una recomendación clara del asistente.</span>';
+        diagnosisText.textContent = 'No se recibió recomendación.';
+      }
+
+      // Cambiar a la pantalla de diagnóstico
+      showScreen('diagnosis');
+    } catch (err) {
+      console.error('❌ Error al contactar con el servidor:', err);
+      responseText.innerHTML =
+        '<span style="color:red;">Error al contactar con el asistente.</span>';
+      diagnosisText.textContent = 'Error al contactar con el asistente.';
+    }
+  }
+
+  // 🎤 Micrófono (voz)
+  function handleMic() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const micButton = document.getElementById('micButton');
+    const textarea = document.getElementById('symptoms');
+
+    if (!SpeechRecognition) {
+      alert('Tu navegador no soporta reconocimiento de voz.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      console.log('🎙️ Grabando...');
+      micButton.style.background = '#dc2626';
+      micButton.disabled = true;
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.trim();
+      textarea.value = transcript;
+      console.log('🗣️ Texto reconocido:', transcript);
+    };
+
+    recognition.onend = () => {
+      console.log('✅ Grabación finalizada.');
+      micButton.style.background = 'linear-gradient(135deg, #14b8a6, #10b981)';
+      micButton.disabled = false;
+
+      const text = textarea.value.trim();
+      if (text) {
+        console.log('📨 Enviando texto reconocido al backend...');
+        sendSymptomsToChat(); // 🔁 llama la misma función que el botón
+      }
+    };
+
+    recognition.onerror = (e) => {
+      console.error('⚠️ Error de reconocimiento:', e.error);
+      micButton.disabled = false;
+    };
+
+    recognition.start();
+  }
+
+  // Navegación
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // Spinner CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+  <!-- Pantalla 4: Pago -->
+  <div id="payment" class="screen bg-teal">
+    <div class="card">
+      <div class="selected-vitamin">
+        <p class="selected-vitamin-label">Vitamina seleccionada:</p>
+        <p class="selected-vitamin-name" id="selectedVitaminPayment">-</p>
+      </div>
+
+      <h2>Escoge método de pago</h2>
+      <div class="payment-option" onclick="selectPayment('yape')">💜 Yape / Plin</div>
+      <div class="payment-option" onclick="selectPayment('cash')">💵 Efectivo</div>
+    </div>
+  </div>
+
+  <!-- Pantalla 5: Gracias -->
+  <div id="thanks" class="screen bg-teal">
+    <div class="card card-center">
+      <h1>¡Muchas gracias!</h1>
+      <p>Tu compra ha sido procesada exitosamente</p>
+      <div class="selected-vitamin">
+        <p class="selected-vitamin-label">Vitamina adquirida:</p>
+        <p class="selected-vitamin-name" id="selectedVitaminThanks">-</p>
+      </div>
+      <button class="btn btn-gray" onclick="resetApp()">NUEVA COMPRA</button>
+    </div>
+  </div>
+
+  <script>
+  // =============================
+  // 🔄 Navegación entre pantallas
+  // =============================
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function selectVitamin(id, name) {
+    // Guarda la vitamina seleccionada y pasa a la pantalla de pago
+    document.getElementById('selectedVitaminPayment').textContent = name;
+    document.getElementById('selectedVitaminThanks').textContent = name;
+    showScreen('payment');
+  }
+
+  function selectPayment(method) {
+    if (method === 'yape') {
+      alert('Se seleccionó pago por Yape/Plin 📱');
+    } else {
+      alert('Se seleccionó pago en efectivo 💵');
+    }
+    showScreen('thanks');
+  }
+
+  function resetApp() {
+    // Reinicia todo
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('welcome').classList.add('active');
+    document.getElementById('symptoms').value = '';
+    document.getElementById('chatResponse').style.display = 'none';
+    document.getElementById('diagnosisText').textContent = 'Esperando respuesta de la IA...';
+    aiRecommendation = '';
+  }
+</script>
+</body>
+
+
+</html>
