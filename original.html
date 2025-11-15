@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitaclick - Smart Wellness</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 24px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .bg-teal {
+            background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
+        }
+
+        .bg-purple {
+            background: linear-gradient(135deg, #fae8ff 0%, #fbcfe8 100%);
+        }
+
+        .bg-green {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .card-center {
+            text-align: center;
+        }
+
+        .icon-circle {
+            width: 96px;
+            height: 96px;
+            background: linear-gradient(135deg, #2dd4bf 0%, #10b981 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 10px 30px rgba(45, 212, 191, 0.3);
+        }
+
+        .icon-circle.small {
+            width: 64px;
+            height: 64px;
+        }
+
+        .icon-circle.purple {
+            background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
+        }
+
+        .icon-circle.green {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+
+        .icon-circle svg {
+            width: 48px;
+            height: 48px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .icon-circle.small svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 32px;
+        }
+
+        .brand {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 32px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        }
+
+        .btn-purple:hover {
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-gray {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        textarea {
+            width: 100%;
+            height: 192px;
+            padding: 16px;
+            padding-right: 64px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            margin-bottom: 24px;
+        }
+
+        textarea:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        textarea:disabled {
+            background: #f9fafb;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .input-purple:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+        }
+
+        .input-green:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group > div {
+            position: relative;
+        }
+
+        .form-group .mic-button {
+            bottom: 8px;
+            right: 8px;
+            width: 48px;
+            height: 48px;
+        }
+
+        .textarea-container {
+            position: relative;
+            margin-bottom: 24px;
+        }
+
+        .mic-button {
+            position: absolute;
+            bottom: 40px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #14b8a6 0%, #10b981 100%);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+        }
+
+        .mic-button:hover {
+            transform: scale(1.1);
+        }
+
+        .mic-button:disabled {
+            background: #ef4444;
+            cursor: not-allowed;
+            animation: pulse 1s infinite;
+        }
+
+        .mic-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .alert-red {
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+        }
+
+        .alert-teal {
+            background: #f0fdfa;
+            border-left: 4px solid #14b8a6;
+        }
+
+        .alert-blue {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert-purple {
+            background: #faf5ff;
+            border-left: 4px solid #a855f7;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .alert-text {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .recording-banner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #fef2f2;
+            border: 2px solid #fca5a5;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .recording-indicator {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .recording-dot {
+            width: 16px;
+            height: 16px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 12px;
+            animation: ping 1s infinite;
+        }
+
+        @keyframes ping {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .recording-text {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .vitamin-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .vitamin-card {
+            padding: 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .vitamin-card:hover {
+            transform: scale(1.05);
+            border-color: #14b8a6;
+        }
+
+        .vitamin-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .vitamin-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .payment-option:hover {
+            border-color: #14b8a6;
+            background: #f0fdfa;
+            transform: scale(1.05);
+        }
+
+        .payment-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .payment-icon.purple {
+            background: #f3e8ff;
+        }
+
+        .payment-icon.green {
+            background: #d1fae5;
+        }
+
+        .payment-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .payment-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .payment-arrow {
+            color: #9ca3af;
+            font-size: 24px;
+        }
+
+        .selected-vitamin {
+            display: inline-block;
+            background: #ccfbf1;
+            padding: 12px 24px;
+            border-radius: 999px;
+            margin-bottom: 32px;
+        }
+
+        .selected-vitamin-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .selected-vitamin-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #14b8a6;
+        }
+
+        .qr-box {
+            padding: 32px;
+            background: white;
+            border: 4px solid #e9d5ff;
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        .qr-placeholder {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-placeholder svg {
+            width: 128px;
+            height: 128px;
+            stroke: #a855f7;
+        }
+
+        .method-badge {
+            background: #faf5ff;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .method-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .method-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #a855f7;
+        }
+
+        .cash-icon {
+            width: 96px;
+            height: 96px;
+            margin: 0 auto 16px;
+        }
+
+        .cash-icon svg {
+            width: 96px;
+            height: 96px;
+            stroke: #10b981;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .success-icon {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .dispensing-box {
+            background: linear-gradient(135deg, #dbeafe 0%, #ccfbf1 100%);
+            border: 2px solid #5eead4;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .dispensing-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .dispensing-header svg {
+            width: 20px;
+            height: 20px;
+            stroke: #14b8a6;
+            margin-right: 8px;
+        }
+
+        .dispensing-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .dispensing-text {
+            font-size: 14px;
+            color: #6b7280;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla 1: Bienvenida -->
+    <div id="welcome" class="screen active bg-teal">
+        <div class="card card-center">
+            <div style="margin-bottom: 32px;">
+                <!-- Aqui va imagen 1 -->
+               
+            </div>
+            <h1>¡HOLA!</h1>
+            <div class="brand">Vitaclick</div>
+            <p class="subtitle">Smart Wellness</p>
+            <button class="btn" onclick="showScreen('question')">COMENZAR</button>
+        </div>
+    </div>
+
+    <!-- Pantalla 2: Síntomas -->
+    <div id="question" class="screen bg-teal">
+        <div class="card">
+            <div class="icon-circle small">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            </div>
+            <h2>¿Qué síntomas presentas?</h2>
+            
+            <div id="recordingBanner" style="display: none;">
+                <div class="recording-banner">
+                    <div class="recording-indicator">
+                        <div class="recording-dot"></div>
+                        <span class="recording-text">🎤 GRABANDO</span>
+                    </div>
+                    <p style="color: #dc2626; text-align: center; font-weight: 600;">Habla claramente ahora...</p>
+                    <p style="font-size: 13px; color: #6b7280; text-align: center; margin-top: 4px;">Haz clic de nuevo en el micrófono para detener</p>
+                    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin-top: 2px;">⏱️ Máximo 8 segundos</p>
+                </div>
+            </div>
+
+            <div class="textarea-container">
+                <textarea id="symptoms" placeholder="Escribe aquí o usa el micrófono..."></textarea>
+                <button id="micButton" class="mic-button" onclick="handleMic()">
+                    <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                </button>
+            </div>
+
+            <div class="alert alert-blue">
+                <p class="alert-text">
+                    <strong>🎤 Instrucciones:</strong><br/>
+                    1. Presiona el botón del micrófono<br/>
+                    2. Permite el acceso cuando te lo pida<br/>
+                    3. Habla claramente<br/>
+                    4. El texto aparecerá automáticamente
+                </p>
+            </div>
+
+            <button class="btn" onclick="goToDiagnosis()">CONTINUAR</button>
+        </div>
+    </div>
+
+    <!-- Pantalla 3: Diagnóstico -->
+    <div id="diagnosis" class="screen bg-teal">
+        <div class="card">
+            <div class="icon-circle small">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </div>
+            
+            <div class="alert alert-teal">
+                <p class="alert-title">Recomendación:</p>
+                <p class="alert-text">
+                    Para tus síntomas te recomiendo consumir <strong style="color: #14b8a6;">zinc en cápsulas por 3 días</strong>. 
+                    Tras ello, consulta a tu médico para un mejor diagnóstico.
+                </p>
+            </div>
+
+            <h2>Elige alguna vitamina</h2>
+
+            <div class="vitamin-grid">
+                <div class="vitamin-card" onclick="selectVitamin('hierro', 'Hierro')">
+                    <div class="vitamin-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">⚡</div>
+                    <div class="vitamin-name">Hierro</div>
+                </div>
+                <div class="vitamin-card" onclick="selectVitamin('b12', 'B12')">
+                    <div class="vitamin-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">💊</div>
+                    <div class="vitamin-name">B12</div>
+                </div>
+                <div class="vitamin-card" onclick="selectVitamin('zinc', 'Zinc')">
+                    <div class="vitamin-icon" style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);">✨</div>
+                    <div class="vitamin-name">Zinc</div>
+                </div>
+                <div class="vitamin-card" onclick="selectVitamin('vitaminac', 'Vitamina C')">
+                    <div class="vitamin-icon" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">🍊</div>
+                    <div class="vitamin-name">Vitamina C</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla 4: Método de Pago -->
+    <div id="payment" class="screen bg-teal">
+        <div class="card">
+            <div class="selected-vitamin">
+                <p class="selected-vitamin-label">Vitamina seleccionada:</p>
+                <p class="selected-vitamin-name" id="selectedVitaminPayment">-</p>
+            </div>
+
+            <h2>Escoge método de pago</h2>
+
+            <div class="payment-option" onclick="selectPayment('yape')">
+                <div class="payment-left">
+                    <div class="payment-icon purple">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2"><rect x="3" y="3" width="18" height="18"></rect><path d="M9 9h6v6H9z"></path></svg>
+                    </div>
+                    <span class="payment-text">Yape / Plin</span>
+                </div>
+                <div class="payment-arrow">→</div>
+            </div>
+
+            <div class="payment-option" onclick="selectPayment('cash')">
+                <div class="payment-left">
+                    <div class="payment-icon green">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </div>
+                    <span class="payment-text">Efectivo</span>
+                </div>
+                <div class="payment-arrow">→</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla 5: Yape QR -->
+    <div id="yape" class="screen bg-purple">
+        <div class="card card-center">
+            <div class="selected-vitamin" style="background: #f3e8ff;">
+                <p class="selected-vitamin-label">Vitamina seleccionada:</p>
+                <p class="selected-vitamin-name" id="selectedVitaminYape" style="color: #a855f7;">-</p>
+            </div>
+
+            <h2>Realice el pago</h2>
+            <p style="color: #6b7280; margin-bottom: 32px;">Escanea el código QR</p>
+
+            <div class="qr-box">
+                 <!-- Aqui va imagen 2 -->
+                
+            </div>
+
+            <div class="method-badge">
+                <p class="method-label">Método de pago</p>
+                <p class="method-name">YAPE / PLIN</p>
+            </div>
+
+            <button class="btn btn-purple" onclick="showScreen('yapeValidation')">CONTINUAR</button>
+        </div>
+    </div>
+
+    <!-- Pantalla 6: Validación Yape -->
+    <div id="yapeValidation" class="screen bg-purple">
+        <div class="card">
+            <div class="selected-vitamin" style="background: #f3e8ff;">
+                <p class="selected-vitamin-label">Vitamina seleccionada:</p>
+                <p class="selected-vitamin-name" id="selectedVitaminYapeVal" style="color: #a855f7;">-</p>
+            </div>
+
+            <div class="icon-circle small purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18"></rect><path d="M9 9h6v6H9z"></path></svg>
+            </div>
+
+            <h2>Validación de pago</h2>
+            <p style="color: #6b7280; text-align: center; margin-bottom: 32px;">Ingresa tu nombre registrado en Yape</p>
+
+            <div id="recordingBannerYape" style="display: none;">
+                <div class="recording-banner">
+                    <div class="recording-indicator">
+                        <div class="recording-dot"></div>
+                        <span class="recording-text">🎤 GRABANDO</span>
+                    </div>
+                    <p style="color: #dc2626; text-align: center; font-weight: 600;">Di tu nombre completo...</p>
+                    <p style="font-size: 13px; color: #6b7280; text-align: center; margin-top: 4px;">Clic de nuevo para detener</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nombre en YAPE</label>
+                <div style="position: relative;">
+                    <input type="text" id="yapeUserName" placeholder="Tu nombre completo" class="input-purple" style="padding-right: 60px;">
+                    <button id="micButtonYape" class="mic-button" onclick="handleMicYape()" style="bottom: 8px; right: 8px; width: 48px; height: 48px; background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);">
+                        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    </button>
+                </div>
+                <p class="form-hint">* Debe coincidir con tu cuenta Yape o usa el micrófono 🎤</p>
+            </div>
+
+            <button class="btn btn-purple" onclick="confirmYape()">VALIDAR Y CONFIRMAR</button>
+        </div>
+    </div>
+
+    <!-- Pantalla 7: Efectivo -->
+    <div id="cash" class="screen bg-green">
+        <div class="card">
+            <div class="selected-vitamin" style="background: #d1fae5;">
+                <p class="selected-vitamin-label">Vitamina seleccionada:</p>
+                <p class="selected-vitamin-name" id="selectedVitaminCash" style="color: #10b981;">-</p>
+            </div>
+
+            <h2 style="text-align: center;">Pago en efectivo</h2>
+            <p style="color: #6b7280; text-align: center; margin-bottom: 32px;">Ingresa las monedas y tu nombre</p>
+
+            <div class="alert" style="background: #d1fae5; padding: 32px; border-radius: 16px; margin-bottom: 24px; text-align: center;">
+                <div class="cash-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="8"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <p style="font-size: 18px; color: #374151;">Inserta las monedas en la ranura inferior</p>
+            </div>
+
+            <div id="recordingBannerCash" style="display: none;">
+                <div class="recording-banner" style="background: #d1fae5; border-color: #34d399;">
+                    <div class="recording-indicator">
+                        <div class="recording-dot"></div>
+                        <span class="recording-text">🎤 GRABANDO</span>
+                    </div>
+                    <p style="color: #dc2626; text-align: center; font-weight: 600;">Di tu nombre completo...</p>
+                    <p style="font-size: 13px; color: #6b7280; text-align: center; margin-top: 4px;">Clic de nuevo para detener</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Ingresa tu nombre</label>
+                <div style="position: relative;">
+                    <input type="text" id="cashUserName" placeholder="Tu nombre" class="input-green" style="padding-right: 60px;">
+                    <button id="micButtonCash" class="mic-button" onclick="handleMicCash()" style="bottom: 8px; right: 8px; width: 48px; height: 48px; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    </button>
+                </div>
+                <p class="form-hint">Escribe tu nombre o usa el micrófono 🎤</p>
+            </div>
+
+            <button class="btn btn-green" onclick="confirmCash()">CONFIRMAR PAGO</button>
+        </div>
+    </div>
+
+    <!-- Pantalla 8: Gracias -->
+    <div id="thanks" class="screen bg-teal">
+        <div class="card card-center">
+            <div class="icon-circle success-icon">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h1 style="font-size: 40px;">¡Muchas gracias!</h1>
+            <!-- Imagen 3 -->
+           
+            <p style="color: #6b7280; margin-bottom: 16px;">Tu compra ha sido procesada exitosamente</p>
+            
+            <div class="selected-vitamin" style="margin-bottom: 24px;">
+                <p class="selected-vitamin-label">Vitamina adquirida:</p>
+                <p class="selected-vitamin-name" id="selectedVitaminThanks">-</p>
+            </div>
+
+            <div class="dispensing-box" style="margin-bottom: 32px;">
+                <div class="dispensing-header">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <p class="dispensing-title">Su vitamina se dispensará en unos minutos</p>
+                </div>
+                <p class="dispensing-text">Por favor espere cerca del dispensador</p>
+            </div>
+
+            <button class="btn btn-gray" onclick="resetApp()">NUEVA COMPRA</button>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let selectedVitamin = null;
+        let symptoms = '';
+        let isRecording = false;
+
+        // Navegación entre pantallas
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Reconocimiento de voz
+        let currentRecognition = null;
+        let recognitionTimeout = null;
+        
+        function handleMic() {
+            console.log('=================================');
+            console.log('🔵 Botón de micrófono presionado');
+            console.log('🌐 Protocolo:', window.location.protocol);
+            console.log('🌐 Host:', window.location.host);
+            console.log('🌐 Online:', navigator.onLine);
+            
+            // Verificar conectividad
+            if (!navigator.onLine) {
+                alert('❌ Sin conexión a internet\n\nEl reconocimiento de voz requiere conexión activa.\nConecta a internet e intenta de nuevo.');
+                return;
+            }
+            
+            // Advertencia sobre contexto no seguro
+            const protocol = window.location.protocol;
+            const isSecure = protocol === 'https:' || 
+                           window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           protocol === 'file:';
+            
+            if (!isSecure) {
+                console.warn('⚠️ Contexto no seguro:', protocol);
+                alert('⚠️ ADVERTENCIA\n\nEstás usando HTTP (no seguro).\nEl reconocimiento de voz puede no funcionar correctamente.\n\nRecomendaciones:\n• Usa HTTPS en producción\n• Prueba en localhost\n• O abre el archivo directamente');
+            }
+            
+            // Si ya está grabando, detener
+            if (isRecording && currentRecognition) {
+                console.log('⏹️ Deteniendo grabación manual');
+                currentRecognition.stop();
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                console.log('❌ SpeechRecognition NO disponible');
+                const userAgent = navigator.userAgent;
+                let browserMsg = '';
+                
+                if (userAgent.includes('Firefox')) {
+                    browserMsg = '\n\n⚠️ Estás usando Firefox.\nFirefox tiene soporte limitado.\n\nUSA CHROME para mejor compatibilidad.';
+                } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                    browserMsg = '\n\nℹ️ Safari requiere iOS 14.5+ o macOS 11+';
+                }
+                
+                alert('❌ Tu navegador no soporta reconocimiento de voz.' + browserMsg + '\n\nNavegadores compatibles:\n• Google Chrome ✅ (recomendado)\n• Microsoft Edge ✅\n• Safari ✅ (versiones recientes)');
+                return;
+            }
+            
+            console.log('✅ SpeechRecognition disponible');
+            
+            const recognition = new SpeechRecognition();
+            currentRecognition = recognition;
+            
+            recognition.lang = 'es-ES';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            
+            console.log('✅ Configuración:');
+            console.log('   - Idioma:', recognition.lang);
+            console.log('   - Continuo:', recognition.continuous);
+            console.log('   - Resultados intermedios:', recognition.interimResults);
+            
+            const textarea = document.getElementById('symptoms');
+            const micButton = document.getElementById('micButton');
+            const banner = document.getElementById('recordingBanner');
+            
+            let finalTranscript = '';
+            let interimTranscript = '';
+            let hasReceivedResults = false;
+            
+            recognition.onstart = () => {
+                console.log('🎤 GRABACIÓN INICIADA');
+                isRecording = true;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                banner.style.display = 'block';
+                
+                // Timeout de seguridad (10 segundos)
+                recognitionTimeout = setTimeout(() => {
+                    console.log('⏰ Timeout alcanzado, deteniendo...');
+                    recognition.stop();
+                }, 10000);
+            };
+            
+            recognition.onspeechstart = () => {
+                console.log('🗣️ Voz detectada - empezando a escuchar');
+            };
+            
+            recognition.onspeechend = () => {
+                console.log('🤐 Silencio detectado - fin de voz');
+            };
+            
+            recognition.onresult = (event) => {
+                console.log('📝 Evento onresult disparado');
+                hasReceivedResults = true;
+                interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    
+                    if (event.results[i].isFinal) {
+                        console.log('✅ Resultado FINAL:', transcript);
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        console.log('⏳ Resultado intermedio:', transcript);
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // Actualizar el textarea con resultados en tiempo real
+                const currentText = textarea.value.trim();
+                const baseText = currentText.replace(interimTranscript, '').trim();
+                textarea.value = baseText ? `${baseText} ${finalTranscript}${interimTranscript}`.trim() : `${finalTranscript}${interimTranscript}`.trim();
+                
+                console.log('📋 Texto actual en textarea:', textarea.value);
+            };
+            
+            recognition.onerror = (event) => {
+                console.log('❌ ERROR:', event.error);
+                console.log('📊 Online status:', navigator.onLine);
+                console.log('📊 Recibió resultados:', hasReceivedResults);
+                
+                clearTimeout(recognitionTimeout);
+                
+                let errorMsg = '';
+                switch(event.error) {
+                    case 'not-allowed':
+                    case 'permission-denied':
+                        errorMsg = '🚫 PERMISO DENEGADO\n\nPasos para solucionarlo:\n\n1. Haz clic en el ícono del candado 🔒 (junto a la URL)\n2. Busca "Micrófono"\n3. Selecciona "Permitir"\n4. RECARGA LA PÁGINA (F5)\n5. Intenta de nuevo';
+                        break;
+                    case 'no-speech':
+                        console.log('ℹ️ No se detectó voz, pero continuando...');
+                        return;
+                    case 'audio-capture':
+                        errorMsg = '🎤 NO SE PUEDE ACCEDER AL MICRÓFONO\n\nVerifica:\n\n1. El micrófono está conectado\n2. No lo está usando otra app (Zoom, Teams, etc.)\n3. En Windows: Configuración > Privacidad > Micrófono\n4. Prueba el micrófono en otra app primero';
+                        break;
+                    case 'network':
+                        errorMsg = '🌐 ERROR DE RED\n\nPosibles causas:\n\n1. Firewall bloqueando Google Speech API\n2. Antivirus/Bloqueador de anuncios activo\n3. Proxy corporativo\n4. VPN interfiriendo\n\nSoluciones:\n• Desactiva bloqueadores de anuncios\n• Desactiva VPN temporalmente\n• Prueba con datos móviles\n• Usa Chrome en modo Incógnito\n\nO simplemente escribe manualmente.';
+                        break;
+                    case 'aborted':
+                        console.log('ℹ️ Grabación detenida por el usuario');
+                        return;
+                    case 'service-not-allowed':
+                        errorMsg = '🚫 SERVICIO NO PERMITIDO\n\nEsto puede pasar si:\n• El sitio no usa HTTPS\n• Estás en modo incógnito\n• El navegador bloquea el servicio\n\nIntenta:\n1. Abrir en ventana normal (no incógnito)\n2. Usar HTTPS\n3. Escribir manualmente';
+                        break;
+                    default:
+                        errorMsg = `⚠️ ERROR: ${event.error}\n\n`;
+                        if (!navigator.onLine) {
+                            errorMsg += '❌ Sin conexión a internet detectada\n\n';
+                        }
+                        errorMsg += 'Contexto:\n';
+                        errorMsg += `• Protocolo: ${window.location.protocol}\n`;
+                        errorMsg += `• Online: ${navigator.onLine ? 'Sí' : 'No'}\n`;
+                        errorMsg += `• Navegador: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Otro'}\n\n`;
+                        errorMsg += 'Intenta escribir manualmente.';
+                }
+                
+                if (errorMsg) alert(errorMsg);
+                
+                isRecording = false;
+                currentRecognition = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #14b8a6 0%, #10b981 100%)';
+                banner.style.display = 'none';
+            };
+            
+            recognition.onend = () => {
+                console.log('🛑 Grabación terminada');
+                console.log('📄 Texto final capturado:', finalTranscript.trim());
+                console.log('📊 Recibió resultados:', hasReceivedResults);
+                
+                clearTimeout(recognitionTimeout);
+                
+                // Guardar el texto final
+                if (finalTranscript.trim()) {
+                    const currentText = textarea.value.trim();
+                    textarea.value = currentText ? `${currentText} ${finalTranscript.trim()}` : finalTranscript.trim();
+                    symptoms = textarea.value;
+                    console.log('💾 Texto guardado en textarea');
+                } else if (!hasReceivedResults) {
+                    console.warn('⚠️ No se recibieron resultados');
+                }
+                
+                isRecording = false;
+                currentRecognition = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #14b8a6 0%, #10b981 100%)';
+                banner.style.display = 'none';
+            };
+            
+            try {
+                console.log('▶️ Iniciando grabación...');
+                recognition.start();
+                console.log('✅ Reconocimiento iniciado correctamente');
+            } catch (error) {
+                console.log('💥 EXCEPCIÓN al iniciar:', error.message);
+                alert(`⚠️ Error al iniciar:\n${error.message}\n\nIntenta:\n1. Recargar la página\n2. Dar permisos al micrófono\n3. Usar Chrome\n4. O escribir manualmente`);
+                isRecording = false;
+                currentRecognition = null;
+                micButton.disabled = false;
+                banner.style.display = 'none';
+                clearTimeout(recognitionTimeout);
+            }
+            
+            console.log('=================================');
+        }
+
+        // Reconocimiento de voz para Yape
+        let currentRecognitionYape = null;
+        let recognitionTimeoutYape = null;
+        
+        function handleMicYape() {
+            console.log('🎤 Micrófono Yape activado');
+            console.log('🌐 Online:', navigator.onLine);
+            
+            if (!navigator.onLine) {
+                alert('❌ Sin conexión a internet\n\nConecta a internet e intenta de nuevo.');
+                return;
+            }
+            
+            // Si ya está grabando, detener
+            if (currentRecognitionYape) {
+                console.log('⏹️ Deteniendo grabación Yape');
+                currentRecognitionYape.stop();
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('❌ Tu navegador no soporta reconocimiento de voz.\n\nUSA CHROME para mejor compatibilidad.\n\nNavegadores compatibles:\n• Chrome ✅\n• Edge ✅\n• Safari ✅');
+                return;
+            }
+            
+            const recognition = new SpeechRecognition();
+            currentRecognitionYape = recognition;
+            
+            recognition.lang = 'es-ES';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            
+            const input = document.getElementById('yapeUserName');
+            const micButton = document.getElementById('micButtonYape');
+            const banner = document.getElementById('recordingBannerYape');
+            
+            let finalTranscript = '';
+            
+            recognition.onstart = () => {
+                console.log('🎤 Grabando nombre Yape...');
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                banner.style.display = 'block';
+                
+                recognitionTimeoutYape = setTimeout(() => {
+                    console.log('⏰ Timeout Yape');
+                    recognition.stop();
+                }, 6000);
+            };
+            
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    
+                    if (event.results[i].isFinal) {
+                        console.log('✅ Nombre capturado:', transcript);
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                input.value = (finalTranscript + interimTranscript).trim();
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('❌ Error Yape:', event.error);
+                console.log('📊 Online:', navigator.onLine);
+                clearTimeout(recognitionTimeoutYape);
+                
+                if (event.error === 'no-speech' || event.error === 'aborted') {
+                    console.log('ℹ️ Continuando...');
+                    return;
+                }
+                
+                let errorMsg = '';
+                switch(event.error) {
+                    case 'not-allowed':
+                    case 'permission-denied':
+                        errorMsg = '🚫 Permiso denegado.\n\nHaz clic en el candado 🔒 junto a la URL\ny permite el acceso al micrófono.\nLuego recarga la página (F5).';
+                        break;
+                    case 'audio-capture':
+                        errorMsg = '🎤 No se puede acceder al micrófono.\n\nVerifica que esté conectado\ny no lo esté usando otra app.';
+                        break;
+                    case 'network':
+                        errorMsg = '🌐 Error de red.\n\nPuede ser:\n• Firewall bloqueando\n• Bloqueador de anuncios\n• VPN interfiriendo\n\nIntenta desactivarlos\no escribe manualmente.';
+                        break;
+                    default:
+                        errorMsg = `⚠️ Error: ${event.error}\n\nOnline: ${navigator.onLine ? 'Sí' : 'No'}\n\nEscribe manualmente tu nombre.`;
+                }
+                
+                if (errorMsg) alert(errorMsg);
+                
+                currentRecognitionYape = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)';
+                banner.style.display = 'none';
+            };
+            
+            recognition.onend = () => {
+                console.log('🛑 Grabación Yape terminada');
+                clearTimeout(recognitionTimeoutYape);
+                
+                if (finalTranscript.trim()) {
+                    input.value = finalTranscript.trim();
+                    console.log('💾 Nombre guardado:', input.value);
+                }
+                
+                currentRecognitionYape = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)';
+                banner.style.display = 'none';
+            };
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('💥 Error al iniciar Yape:', error);
+                alert(`⚠️ Error: ${error.message}\n\nIntenta escribir manualmente.`);
+                currentRecognitionYape = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)';
+                banner.style.display = 'none';
+                clearTimeout(recognitionTimeoutYape);
+            }
+        }
+
+        // Reconocimiento de voz para Efectivo
+        let currentRecognitionCash = null;
+        let recognitionTimeoutCash = null;
+        
+        function handleMicCash() {
+            console.log('🎤 Micrófono Efectivo activado');
+            console.log('🌐 Online:', navigator.onLine);
+            
+            if (!navigator.onLine) {
+                alert('❌ Sin conexión a internet\n\nConecta a internet e intenta de nuevo.');
+                return;
+            }
+            
+            // Si ya está grabando, detener
+            if (currentRecognitionCash) {
+                console.log('⏹️ Deteniendo grabación Efectivo');
+                currentRecognitionCash.stop();
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('❌ Tu navegador no soporta reconocimiento de voz.\n\nUSA CHROME para mejor compatibilidad.\n\nNavegadores compatibles:\n• Chrome ✅\n• Edge ✅\n• Safari ✅');
+                return;
+            }
+            
+            const recognition = new SpeechRecognition();
+            currentRecognitionCash = recognition;
+            
+            recognition.lang = 'es-ES';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            
+            const input = document.getElementById('cashUserName');
+            const micButton = document.getElementById('micButtonCash');
+            const banner = document.getElementById('recordingBannerCash');
+            
+            let finalTranscript = '';
+            
+            recognition.onstart = () => {
+                console.log('🎤 Grabando nombre Efectivo...');
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                banner.style.display = 'block';
+                
+                recognitionTimeoutCash = setTimeout(() => {
+                    console.log('⏰ Timeout Efectivo');
+                    recognition.stop();
+                }, 6000);
+            };
+            
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    
+                    if (event.results[i].isFinal) {
+                        console.log('✅ Nombre capturado:', transcript);
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                input.value = (finalTranscript + interimTranscript).trim();
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('❌ Error Efectivo:', event.error);
+                console.log('📊 Online:', navigator.onLine);
+                clearTimeout(recognitionTimeoutCash);
+                
+                if (event.error === 'no-speech' || event.error === 'aborted') {
+                    console.log('ℹ️ Continuando...');
+                    return;
+                }
+                
+                let errorMsg = '';
+                switch(event.error) {
+                    case 'not-allowed':
+                    case 'permission-denied':
+                        errorMsg = '🚫 Permiso denegado.\n\nHaz clic en el candado 🔒 junto a la URL\ny permite el acceso al micrófono.\nLuego recarga la página (F5).';
+                        break;
+                    case 'audio-capture':
+                        errorMsg = '🎤 No se puede acceder al micrófono.\n\nVerifica que esté conectado\ny no lo esté usando otra app.';
+                        break;
+                    case 'network':
+                        errorMsg = '🌐 Error de red.\n\nPuede ser:\n• Firewall bloqueando\n• Bloqueador de anuncios\n• VPN interfiriendo\n\nIntenta desactivarlos\no escribe manualmente.';
+                        break;
+                    default:
+                        errorMsg = `⚠️ Error: ${event.error}\n\nOnline: ${navigator.onLine ? 'Sí' : 'No'}\n\nEscribe manualmente tu nombre.`;
+                }
+                
+                if (errorMsg) alert(errorMsg);
+                
+                currentRecognitionCash = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                banner.style.display = 'none';
+            };
+            
+            recognition.onend = () => {
+                console.log('🛑 Grabación Efectivo terminada');
+                clearTimeout(recognitionTimeoutCash);
+                
+                if (finalTranscript.trim()) {
+                    input.value = finalTranscript.trim();
+                    console.log('💾 Nombre guardado:', input.value);
+                }
+                
+                currentRecognitionCash = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                banner.style.display = 'none';
+            };
+            
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('💥 Error al iniciar Efectivo:', error);
+                alert(`⚠️ Error: ${error.message}\n\nIntenta escribir manualmente.`);
+                currentRecognitionCash = null;
+                micButton.disabled = false;
+                micButton.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                banner.style.display = 'none';
+                clearTimeout(recognitionTimeoutCash);
+            }
+        }
+
+        // Ir a diagnóstico
+        function goToDiagnosis() {
+            const textarea = document.getElementById('symptoms');
+            if (!textarea.value.trim()) {
+                alert('Por favor, describe tus síntomas');
+                return;
+            }
+            symptoms = textarea.value;
+            showScreen('diagnosis');
+        }
+
+        // Seleccionar vitamina
+        function selectVitamin(id, name) {
+            selectedVitamin = { id, name };
+            showScreen('payment');
+            document.getElementById('selectedVitaminPayment').textContent = name;
+        }
+
+        // Seleccionar método de pago
+        function selectPayment(method) {
+            if (method === 'yape') {
+                document.getElementById('selectedVitaminYape').textContent = selectedVitamin.name;
+                document.getElementById('selectedVitaminYapeVal').textContent = selectedVitamin.name;
+                showScreen('yape');
+            } else {
+                document.getElementById('selectedVitaminCash').textContent = selectedVitamin.name;
+                showScreen('cash');
+            }
+        }
+
+        // Confirmar Yape
+        function confirmYape() {
+            const userName = document.getElementById('yapeUserName').value;
+            if (!userName.trim()) {
+                alert('Por favor, ingresa tu nombre');
+                return;
+            }
+            document.getElementById('selectedVitaminThanks').textContent = selectedVitamin.name;
+            showScreen('thanks');
+        }
+
+        // Confirmar Efectivo
+        function confirmCash() {
+            const userName = document.getElementById('cashUserName').value;
+            if (!userName.trim()) {
+                alert('Por favor, ingresa tu nombre');
+                return;
+            }
+            document.getElementById('selectedVitaminThanks').textContent = selectedVitamin.name;
+            showScreen('thanks');
+        }
+
+        // Reiniciar aplicación
+        function resetApp() {
+            selectedVitamin = null;
+            symptoms = '';
+            document.getElementById('symptoms').value = '';
+            document.getElementById('yapeUserName').value = '';
+            document.getElementById('cashUserName').value = '';
+            showScreen('welcome');
+        }
+
+        console.log('✅ VITACLICK cargado correctamente');
+    </script>
+</body>
+</html>
